@@ -30,6 +30,12 @@ def getInformation():
     print(information)
     return information
 
+def readUpdate():
+    with open("update.txt", "r") as myfile:
+        data = myfile.readlines()
+        return data
+
+
 def main():
     host = '127.0.0.1'
     port = 50000
@@ -37,6 +43,8 @@ def main():
     client.connect((host, port))
     message = str(getInformation())
     client.send(bytes(message,"utf-8"))
+    message = readUpdate()
+    client.send(bytes(str(message), "utf-8"))
     while message != 'quit':
         message = input("Nachricht: ")
     client.close()

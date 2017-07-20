@@ -14,17 +14,18 @@ fullclient = []
 
 app = Flask(__name__)
 
-def sendInfo(c, addr, j):
+def getInfo(c, addr, j):
     while True:
         data = c.recv(1024)
         if not data:
            print(j)
            print("Client: " + str(addr) + " hat die Verbindung unterbrochen")
-           alivedict[j] = "NotAlive"
            fullclient[j][2] = "notAlive"
            print(alivedict)
            break
         print("From Connected user: " + str(data))
+
+
         new = json.dumps(str(data).replace("\\", ""))
         new = str(new[2:len(new) - 1])
         new = new.replace("\\", "")
@@ -38,20 +39,14 @@ def sendInfo(c, addr, j):
         system = new[23]
         ram = new[27]
 
-        ipdict.append(ip)
-        hostnamedict.append(hostname)
-        alivedict.append(alive)
-        datedict.append(date)
-        procdict.append(proc)
         fullclient.append([ip, hostname, system, alive, date, proc, ram])
         print(fullclient)
     c.close()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-
 def start():
-    print("gestartet")
+    print("server gestartet")
     host = '0.0.0.0'
     port = 50000
     s.bind((host, port))
@@ -63,10 +58,24 @@ def start():
         j = i
         i  = i+1
         print("Connection from : " + str(addr))
-        thread_ = Thread(target = sendInfo, args=(c, addr, j))
+        thread_ = Thread(target = getInfo, args=(c, addr, j))
         thread_.daemon = True
         thread_.start()
+        tPackage = Thread(target= packageInfo, args=(c, addr, j))
+        tPackage.daemon = True
+        tPackage.start()
         client_info.append([str(addr)])
+
+def packageInfo(c, addr, j):
+    while True:
+        data = c.recv(1024)
+        if not data:
+            print(j)
+            print("Client: " + str(addr) + " hat die Verbindung unterbrochen")
+            fullclient[j][2] = "notAlive"
+            print(alivedict)
+            break
+        print("From Connected user: " + str(data))
 
 @app.route('/')
 def hello_world():
@@ -88,5 +97,3 @@ if __name__ == '__main__':
         if message == 'Exit':
             s.close()
             sys.exit()
-        if message == 'test':
-            print(fullclient[1][1])
