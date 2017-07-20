@@ -10,6 +10,7 @@ hostnamedict = []
 alivedict = []
 datedict = []
 procdict = []
+fullclient = []
 
 app = Flask(__name__)
 
@@ -28,28 +29,28 @@ def sendInfo(c, addr, j):
         new = new.replace("\\", "")
         new = eval(new)
         new = str(new).split("'")
-        #print(new)
         hostname = new[3]
         ip = new[7]
         alive = str(new[11])
         date = new[15]
         proc = new[19]
 
-        #print("sending: " + str(data))
         ipdict.append(ip)
         hostnamedict.append(hostname)
         alivedict.append(alive)
         datedict.append(date)
         procdict.append(proc)
-        print(ipdict)
-        print(ipdict[0])
+        fullclient.append([hostname, ip, alive, date, proc])
+        print(fullclient)
     c.close()
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
 
 def start():
     print("gestartet")
     host = '0.0.0.0'
-    port = 50001
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    port = 50000
     s.bind((host, port))
     s.listen(3)
     while True:
@@ -69,7 +70,7 @@ def hello_world():
     return 'Hello world'
 @app.route('/test')
 def test():
-    return render_template('index.html', c = client_info)
+    return render_template('index.html', fullclient = fullclient)
 
 if __name__ == '__main__':
     tserver = Thread(target = start)
@@ -82,4 +83,7 @@ if __name__ == '__main__':
         time.sleep(2)
         message = input("Type Exit to end server!")
         if message == 'Exit':
+            s.close()
             sys.exit()
+        if message == 'test':
+            print(fullclient[1][1])
