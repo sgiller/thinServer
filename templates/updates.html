@@ -38,32 +38,14 @@
                 <div class="col-md-12">
 
                     <div class="text-left">
+                        <ul class="list-group">
+                        <li class="list-group-item">Update1 datum: 25.06:2017  (veraltet) <button type="submit" class="btn btn-primary">Download</button></li>
+                        <li class="list-group-item">Update2 datum: 25.06:2017  (veraltet) <button type="submit" class="btn btn-primary">Download</button></li>
+                        <li class="list-group-item">Update3 datum: 25.06:2017  (veraltet)  <button type="submit" class="btn btn-primary">Download</button></li>
+                        <li class="list-group-item">Update4 datum: 25.06:2017  (veraltet)  <button type="submit" class="btn btn-primary">Download</button></li>
+                        <li class="list-group-item">Update5 datum: 25.06:2017  (veraltet)  <button type="submit" class="btn btn-primary">Download</button></li>
+                    </ul>
 
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th>Ip</th>
-                                <th>Hostname</th>
-                                <th>System</th>
-                                <th>Verbindung</th>
-                                <th>Datum</th>
-                                <th>Prozessor</th>
-                                <th>Ram</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-
-                            {% for x in fullclient %}
-                            <tr class="info">
-
-                                {% for y in x %}
-                                    <td>{{ y }}</td>
-                                {% endfor %}
-                            </tr>
-                            {% endfor %}
-
-                            </tbody>
-                        </table>
 
                     </div>
 

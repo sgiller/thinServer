@@ -26,7 +26,7 @@ def getInformation():
 
     operating = sys.platform
 
-    information = {"Hostname": name, "Ip": ip, "Alive": "alive", "Datum": date, "CPU": proc}
+    information = {"Hostname": name, "Ip": ip, "Alive": "alive", "Datum": date, "CPU": proc, "System": operating, "Ram": str(mem)+"GB"}
     print(information)
     return information
 

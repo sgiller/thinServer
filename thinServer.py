@@ -21,6 +21,7 @@ def sendInfo(c, addr, j):
            print(j)
            print("Client: " + str(addr) + " hat die Verbindung unterbrochen")
            alivedict[j] = "NotAlive"
+           fullclient[j][2] = "notAlive"
            print(alivedict)
            break
         print("From Connected user: " + str(data))
@@ -34,13 +35,15 @@ def sendInfo(c, addr, j):
         alive = str(new[11])
         date = new[15]
         proc = new[19]
+        system = new[23]
+        ram = new[27]
 
         ipdict.append(ip)
         hostnamedict.append(hostname)
         alivedict.append(alive)
         datedict.append(date)
         procdict.append(proc)
-        fullclient.append([hostname, ip, alive, date, proc])
+        fullclient.append([ip, hostname, system, alive, date, proc, ram])
         print(fullclient)
     c.close()
 
@@ -67,10 +70,10 @@ def start():
 
 @app.route('/')
 def hello_world():
-    return 'Hello world'
-@app.route('/test')
-def test():
-    return render_template('index.html', fullclient = fullclient)
+    return render_template('index.html', fullclient=fullclient)
+@app.route('/updates')
+def updates():
+    return render_template('updates.html')
 
 if __name__ == '__main__':
     tserver = Thread(target = start)
