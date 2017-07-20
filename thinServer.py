@@ -23,4 +23,12 @@ if __name__ == '__main__':
     tserver = Thread(target=start)
     tserver.daemon = True
     tserver.start()
-    app.run()
+    tflask = Thread(target=app.run)
+    tflask.daemon = True
+    tflask.start()
+    while True:
+        time.sleep(2)
+        message = input("Type Exit to end server!")
+        if message == 'Exit':
+            sys.exit()
+
