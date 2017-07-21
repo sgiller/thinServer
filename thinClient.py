@@ -41,6 +41,7 @@ def main():
     port = 50000
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((host, port))
+    message = ""
     message = str(getInformation())
     client.send(bytes(message,"utf-8"))
     message = readUpdate()
