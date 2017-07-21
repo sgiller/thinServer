@@ -40,7 +40,7 @@ def readUpdate():
 
 def main():
     host = '127.0.0.1'
-    port = 50000
+    port = 50001
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((host, port))
     message = " "
@@ -50,7 +50,11 @@ def main():
     time.sleep(1)
     client.send(bytes(message, "utf-8"))
     while message != 'quit':
-        message = input("Nachricht: ")
+        data = client.recv(1024)
+        data = bytes(data).decode(encoding='UTF-8')
+        print(data)
+        message = input()
+        client.send(bytes(message, "utf-8"))
     client.close()
 
 

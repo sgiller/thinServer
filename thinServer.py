@@ -4,15 +4,16 @@ from threading import Thread
 
 i = 0
 j = 0
-client_info =[]
 ipdict = []
 hostnamedict = []
 alivedict = []
+connections = []
 datedict = []
 procdict = []
 fullclient = []
 fullpackage = []
-
+aktuelleVersion = 3.0
+needupdate = []
 app = Flask(__name__)
 
 def getInfo(c, addr, j):
@@ -33,6 +34,15 @@ def getInfo(c, addr, j):
             link = new_[7]
             command = new_[9]
             fullpackage.append([updatename, updateversion, pruefsumme, link, command])
+            if (str(updateversion) != aktuelleVersion):
+                needupdate[j] = True
+                c.send(
+                    "Das System ist nicht auf dem neusten Stand es wird ein Update empfohlen! antworten sie mit ja um das Update automatisch zu installieren".encode())
+                data = c.recv(1024)
+                data = bytes(data).decode(encoding='UTF-8')
+                if (str(data) == "ja"):
+                    pass
+                print(data)
             print("Package:"+ str(fullpackage))
             continue
 
@@ -54,12 +64,13 @@ def getInfo(c, addr, j):
 def start():
     print("server gestartet")
     host = '0.0.0.0'
-    port = 50000
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    port = 50001
     s.bind((host, port))
     s.listen(3)
     while True:
         c, addr = s.accept()
+        needupdate.append(False)
+        connections.append(c)
         global j
         global i
         j = i
@@ -68,7 +79,8 @@ def start():
         thread_ = Thread(target = getInfo, args=(c, addr, j))
         thread_.daemon = True
         thread_.start()
-        client_info.append([str(addr)])
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 @app.route('/')
 def hello_world():
@@ -76,6 +88,9 @@ def hello_world():
 @app.route('/updates')
 def updates():
     return render_template('updates.html', fullpackage=fullpackage, fullclient=fullclient)
+@app.route('/availUpdates')
+def availupdates():
+    return render_template('availUpdates.html')
 
 if __name__ == '__main__':
     tserver = Thread(target = start)
@@ -85,4 +100,4 @@ if __name__ == '__main__':
     tflask.daemon = True
     tflask.start()
     while True:
-        pass
+        time.sleep(2)
