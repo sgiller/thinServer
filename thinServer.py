@@ -1,5 +1,5 @@
 from flask import *
-import socket, select, string, sys, time, json
+import socket, select, string, sys, time, json, os
 from threading import Thread
 
 i = 0
@@ -109,6 +109,11 @@ def updates():
 @app.route('/availUpdates')
 def availupdates():
     return render_template('availUpdates.html')
+
+@app.route('/downloads/<path:filename>')
+def downloads(filename):
+    file = filename+".zip"
+    return send_from_directory('downloads',file)
 
 if __name__ == '__main__':
     tserver = Thread(target = start)
