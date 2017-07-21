@@ -69,16 +69,21 @@ def start():
     s.listen(3)
     while True:
         c, addr = s.accept()
-        needupdate.append(False)
-        connections.append(c)
-        global j
-        global i
-        j = i
-        i  = i+1
-        print("Connection from : " + str(addr))
-        thread_ = Thread(target = getInfo, args=(c, addr, j))
-        thread_.daemon = True
-        thread_.start()
+        if c in connections:
+            print("schon in liste")
+        else:
+            connections.append(c)
+            print(addr)
+            needupdate.append(False)
+            connections.append(c)
+            global j
+            global i
+            j = i
+            i  = i+1
+            print("Connection from : " + str(addr))
+            thread_ = Thread(target = getInfo, args=(c, addr, j))
+            thread_.daemon = True
+            thread_.start()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
