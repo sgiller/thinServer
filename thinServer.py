@@ -20,16 +20,6 @@ aktuellCommand = "tarxyz"
 needupdate = []
 app = Flask(__name__)
 
-@app.route('/')
-def hello_world():
-    return render_template('index.html', fullclient=fullclient)
-@app.route('/updates')
-def updates():
-    return render_template('updates.html', fullpackage=fullpackage, fullclient=fullclient)
-@app.route('/availUpdates')
-def availupdates():
-    return render_template('availUpdates.html')
-
 def start():
     print("server gestartet")
     host = '0.0.0.0'
@@ -79,17 +69,20 @@ def getInfo(c, addr, j):
     link = new_[7]
     command = new_[9]
     fullpackage.append([updatename, updateversion, pruefsumme, link, command])
-    if (str(updateversion) != aktuelleVersion):
+    if (str(updateversion) != str(aktuelleVersion)):
         needupdate[j] = True
-        c.send("Das System ist nicht auf dem neusten Stand es wird ein Update empfohlen! antworten sie mit ja um das Update automatisch zu installieren".encode())
-        data = c.recv(1024)
-        data = bytes(data).decode(encoding='UTF-8')
-        if (str(data) == "ja"):
-             pass
-        print(data)
-        versionstext = ("{'"+str(aktuellupdate)+"', '"+str(aktuelleVersion)+"', '"+str(aktuellepruefsumme)+"', '"+str(aktuellLink)+"', '"+str(aktuellCommand)+"'}")
+        c.send("UPDATE! Das System ist nicht auf dem neusten Stand es wird ein Update automatisch installiert!".encode())
+        versionstext = ("{'"+str(aktuellupdate)+"', '"+str(aktuelleVersion)+"', '"+str(aktuellepruefsumme)+"', '"+str(aktuellLink)+"', '"+str(aktuellCommand)+"'} Wird installiert")
         c.send(versionstext.encode())
+        fullpackage[j][0] = aktuellupdate
+        fullpackage[j][1] = aktuelleVersion
+        fullpackage[j][2] = aktuellepruefsumme
+        fullpackage[j][3] = aktuellLink
+        fullpackage[j][4] = aktuellCommand
         print("Package:"+ str(fullpackage))
+    if (str(updateversion) == str(aktuelleVersion)):
+        needupdate[j] = False
+        c.send("Das System ist bereits auf dem neusten Stand kein Update notwendig".encode())
 
     while True:
         data = c.recv(1024)
@@ -98,21 +91,24 @@ def getInfo(c, addr, j):
             fullclient[j][3] = "notAlive"
             break
         else:
-            data = bytes(data).decode(encoding='UTF-8')
-            print(data)
-            new_ = str(data)
-            new_ = new_.split("'")
-            updatename = new_[1]
-            updateversion = new_[3]
-            pruefsumme = new_[5]
-            link = new_[7]
-            command = new_[9]
-            fullpackage[j][0] = updatename
-            fullpackage[j][1] = updateversion
-            fullpackage[j][2] = pruefsumme
-            fullpackage[j][3] = link
-            fullpackage[j][4] = command
+            versionstext = ("{'" + str(aktuellupdate) + "', '" + str(aktuelleVersion) + "', '" + str(aktuellepruefsumme) + "', '" + str(aktuellLink) + "', '" + str(aktuellCommand) + "'} Wird installiert")
+            c.send(versionstext.encode())
+            fullpackage[j][0] = aktuellupdate
+            fullpackage[j][1] = aktuelleVersion
+            fullpackage[j][2] = aktuellepruefsumme
+            fullpackage[j][3] = aktuellLink
+            fullpackage[j][4] = aktuellCommand
     c.close()
+
+@app.route('/')
+def hello_world():
+    return render_template('index.html', fullclient=fullclient)
+@app.route('/updates')
+def updates():
+    return render_template('updates.html', fullpackage=fullpackage, fullclient=fullclient)
+@app.route('/availUpdates')
+def availupdates():
+    return render_template('availUpdates.html')
 
 if __name__ == '__main__':
     tserver = Thread(target = start)
@@ -122,4 +118,5 @@ if __name__ == '__main__':
     tflask.daemon = True
     tflask.start()
     while True:
+
         time.sleep(2)

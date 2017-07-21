@@ -58,13 +58,13 @@ def main():
     data = client.recv(1024)
     data = bytes(data).decode(encoding='UTF-8')
     print(data)
-    message = input()
-    client.send(bytes(message, "utf-8"))
-    data = client.recv(1024)
-    data = bytes(data).decode(encoding='UTF-8')
-    print(data)
-    writteUpdate(str(data))
-    print("Aktuelles Update wurde erfolgreich installiert")
+    if str(data).find("UPDATE!") != -1:
+        data = client.recv(1024)
+        data = bytes(data).decode(encoding='UTF-8')
+        print(data)
+        writteUpdate(str(data))
+        print("Aktuelles Update wurde erfolgreich installiert")
+
     message = readUpdate()
     time.sleep(1)
     client.send(bytes(message, "utf-8"))
@@ -73,9 +73,14 @@ def main():
         if message == 'quit':
             break
         else:
-            message = readUpdate()
+            message = "needUpdate"
             time.sleep(1)
             client.send(bytes(message, "utf-8"))
+            data = client.recv(1024)
+            data = bytes(data).decode(encoding='UTF-8')
+            print(data)
+            writteUpdate(str(data))
+
     client.close()
 
 
