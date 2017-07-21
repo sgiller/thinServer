@@ -23,7 +23,7 @@ app = Flask(__name__)
 def start():
     print("server gestartet")
     host = '0.0.0.0'
-    port = 50000
+    port = 50001
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
     s.listen(3)
