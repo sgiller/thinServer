@@ -33,9 +33,15 @@ def getInformation():
 def readUpdate():
     with open("update.txt", "r") as myfile:
         data = myfile.readline()
+        myfile.close()
         str1 = ''.join(data)
         print(str1)
         return str1
+
+def writteUpdate(text):
+    updateFile = open("update.txt",'w')
+    updateFile.write(text)
+    updateFile.close()
 
 
 def main():
@@ -49,12 +55,27 @@ def main():
     message = readUpdate()
     time.sleep(1)
     client.send(bytes(message, "utf-8"))
-    while message != 'quit':
-        data = client.recv(1024)
-        data = bytes(data).decode(encoding='UTF-8')
-        print(data)
-        message = input()
-        client.send(bytes(message, "utf-8"))
+    data = client.recv(1024)
+    data = bytes(data).decode(encoding='UTF-8')
+    print(data)
+    message = input()
+    client.send(bytes(message, "utf-8"))
+    data = client.recv(1024)
+    data = bytes(data).decode(encoding='UTF-8')
+    print(data)
+    writteUpdate(str(data))
+    print("Aktuelles Update wurde erfolgreich installiert")
+    message = readUpdate()
+    time.sleep(1)
+    client.send(bytes(message, "utf-8"))
+    while True:
+        message = input("send um erneut Paketinformationen zu schicken quit um verbindung zu trennen")
+        if message == 'quit':
+            break
+        else:
+            message = readUpdate()
+            time.sleep(1)
+            client.send(bytes(message, "utf-8"))
     client.close()
 
 
