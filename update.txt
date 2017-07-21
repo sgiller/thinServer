@@ -1,1 +1,1 @@
-['Update 1', '1.00', 'abc', 'www.ichdownloadeupdate.de', 'tarxyz']
+{'Update 1', '1.00', 'abc', 'www.ichdownloadeupdate.de', 'tarxyz'}

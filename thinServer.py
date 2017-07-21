@@ -34,10 +34,12 @@ def getInfo(c, addr, j):
             command = new_[9]
             fullpackage.append([updatename, updateversion, pruefsumme, link, command])
             print("Package:"+ str(fullpackage))
+            continue
 
-        else:
+        if str(data).find("Hostname") != 1:
             new = str(data)
             new = str(new).split("'")
+            print("Hier kommt irgendwo der Fehler!"+str(new))
             hostname = new[3]
             ip = new[7]
             alive = str(new[11])
@@ -47,7 +49,7 @@ def getInfo(c, addr, j):
             ram = new[27]
             fullclient.append([ip, hostname, system, alive, date, proc, ram])
             print("Client:"+str(fullclient))
-    c.close()
+            continue
 
 def start():
     print("server gestartet")
@@ -73,7 +75,7 @@ def hello_world():
     return render_template('index.html', fullclient=fullclient)
 @app.route('/updates')
 def updates():
-    return render_template('updates.html')
+    return render_template('updates.html', fullpackage=fullpackage, fullclient=fullclient)
 
 if __name__ == '__main__':
     tserver = Thread(target = start)

@@ -32,8 +32,10 @@ def getInformation():
 
 def readUpdate():
     with open("update.txt", "r") as myfile:
-        data = myfile.readlines()
-        return data
+        data = myfile.readline()
+        str1 = ''.join(data)
+        print(str1)
+        return str1
 
 
 def main():
@@ -41,11 +43,12 @@ def main():
     port = 50000
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((host, port))
-    message = ""
+    message = " "
     message = str(getInformation())
     client.send(bytes(message,"utf-8"))
     message = readUpdate()
-    client.send(bytes(str(message), "utf-8"))
+    time.sleep(1)
+    client.send(bytes(message, "utf-8"))
     while message != 'quit':
         message = input("Nachricht: ")
     client.close()

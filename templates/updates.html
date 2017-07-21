@@ -22,7 +22,7 @@
             <div id="navbar-collapse-02" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="/">Verbundene Clienten!</a></li>
-                    <li class="active"><a href="/updates">Updates</a></li>
+                    <li class="active"><a href="/updates">Installierte Updates</a></li>
                     <li><a href="#"></a></li>
                     <li><a href="#"></a></li>
                     <li><a href="#"></a></li>
@@ -38,13 +38,31 @@
                 <div class="col-md-12">
 
                     <div class="text-left">
-                        <ul class="list-group">
-                        <li class="list-group-item">Update1 datum: 25.06:2017  (veraltet) <button type="submit" class="btn btn-primary">Download</button></li>
-                        <li class="list-group-item">Update2 datum: 25.06:2017  (veraltet) <button type="submit" class="btn btn-primary">Download</button></li>
-                        <li class="list-group-item">Update3 datum: 25.06:2017  (veraltet)  <button type="submit" class="btn btn-primary">Download</button></li>
-                        <li class="list-group-item">Update4 datum: 25.06:2017  (veraltet)  <button type="submit" class="btn btn-primary">Download</button></li>
-                        <li class="list-group-item">Update5 datum: 25.06:2017  (veraltet)  <button type="submit" class="btn btn-primary">Download</button></li>
-                    </ul>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Hostname</th>
+                                <th>Updatename</th>
+                                <th>Updateversion</th>
+                                <th>Pruefsumme</th>
+                                <th>Link</th>
+                                <th>Befehl</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% set counter = 0 %}
+                            {% for x in fullpackage %}
+                                <tr class="info">
+                                    <td>{{fullclient[counter][1]}}</td>
+                                    {% for y in x %}
+                                        <td>{{ y }}</td>
+                                    {% endfor %}
+                                </tr>
+                             {% set counter = counter + 1 %}
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
 
 
                     </div>
