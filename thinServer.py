@@ -51,7 +51,7 @@ def getInfo(c, addr, j):
     new = str(data)
     new = str(new).split("'")
     hostname = new[3]
-    ip = new[7]
+    ip = addr[0]
     index = 0
     for x in fullclient:
         for y in x:
@@ -64,11 +64,11 @@ def getInfo(c, addr, j):
             break
         index+=1
 
-    alive = str(new[11])
-    date = new[15]
-    proc = new[19]
-    system = str(new[23])
-    ram = new[27]
+    alive = str(new[7])
+    date = new[11]
+    proc = new[15]
+    system = str(new[19])
+    ram = new[23]
     print(index)
     if (already == True):
         fullclient[index][0] = ip

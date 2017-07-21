@@ -1,4 +1,4 @@
-import socket, threading, time, os, json, psutil, subprocess, platform, time, sys
+import socket, threading, time, os, json, psutil, subprocess, platform, time, sys, math
 
 def get_processor_info():
     if platform.system() == "Windows":
@@ -6,27 +6,24 @@ def get_processor_info():
     elif platform.system() == "Darwin":
         return subprocess.check_output(['/usr/sbin/sysctl', "-n", "machdep.cpu.brand_string"]).strip()
     elif platform.system() == "Linux":
-        command = "cat /proc/cpuinfo"
-        return subprocess.check_output(command, shell=True).strip()
+        return platform.processor()
     return ""
 
 def getInformation():
     mem = psutil.virtual_memory()
     mem = mem.total/1024**3
+    mem = math.ceil(mem*100)/100
 
-    proc = str(get_processor_info())
-    proc = proc[2:len(proc)-1]
+    proc = get_processor_info()
 
     name = platform.uname().node
-
-    ip =socket.gethostbyname(socket.gethostname())
 
     date = time.strftime("%d.%m.%Y %H:%M:%S")
     print(str(date))
 
     operating = sys.platform
 
-    information = {"Hostname": name, "Ip": ip, "Alive": "alive", "Datum": date, "CPU": proc, "System": operating, "Ram": str(mem)+"GB"}
+    information = {"Hostname": name, "Alive": "alive", "Datum": date, "CPU": proc, "System": operating, "Ram": str(mem)+"GB"}
     print(information)
     return information
 
