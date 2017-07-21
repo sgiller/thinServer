@@ -25,7 +25,7 @@
                     <li class="active"><a href="/">Verbundene Clienten!</a></li>
                     <li class="active"><a href="/updates">Updatehistorie</a></li>
                     <li class="active"><a href="/availUpdates">Verfügbare Updates</a></li>
-                    <li><a href="#"></a></li>
+                    <li class="active"><a href="/download">Downloads</a></li>
                     <li><a href="#"></a></li>
                 </ul>
             </div><!-- /.navbar-collapse -->
@@ -43,6 +43,7 @@
                             <thead>
                             <tr>
                                 <th>Hostname</th>
+                                <th>Datum</th>
                                 <th>Updatename</th>
                                 <th>Updateversion</th>
                                 <th>Pruefsumme</th>
@@ -55,6 +56,7 @@
                             {% for x in fullpackage %}
                                 <tr class="info">
                                     <td>{{fullclient[counter][1]}}</td>
+                                    <td>{{fullclient[counter][4]}}</td>
                                     {% for y in x %}
                                         <td>{{ y }}</td>
                                     {% endfor %}

@@ -15,7 +15,7 @@ fullpackage = []
 aktuelleVersion = 3.0
 aktuellupdate = "Update 3"
 aktuellepruefsumme = "ghi"
-aktuellLink = "www.ichdownloadeupdate.de"
+aktuellLink = "127.0.0.1:5000/downloads/a"
 aktuellCommand = "tarxyz"
 needupdate = []
 app = Flask(__name__)
@@ -95,7 +95,7 @@ def getInfo(c, addr, j):
     if (str(updateversion) != str(aktuelleVersion)):
         needupdate[j] = True
         c.send("UPDATE! Das System ist nicht auf dem neusten Stand es wird ein Update automatisch installiert!".encode())
-        versionstext = ("{'"+str(aktuellupdate)+"', '"+str(aktuelleVersion)+"', '"+str(aktuellepruefsumme)+"', '"+str(aktuellLink)+"', '"+str(aktuellCommand)+"'} Wird installiert")
+        versionstext = ("{'"+str(aktuellupdate)+"', '"+str(aktuelleVersion)+"', '"+str(aktuellepruefsumme)+"', '"+str(aktuellLink)+"', '"+str(aktuellCommand)+"'}")
         c.send(versionstext.encode())
         fullpackage[j][0] = aktuellupdate
         fullpackage[j][1] = aktuelleVersion
@@ -111,7 +111,7 @@ def getInfo(c, addr, j):
         data = c.recv(1024)
         if not data:
             print("Client: " + str(addr[1]) + " hat die Verbindung unterbrochen")
-            fullclient[j][3] = "notAlive"
+            fullclient[index][3] = "notAlive"
             break
         else:
             versionstext = ("{'" + str(aktuellupdate) + "', '" + str(aktuelleVersion) + "', '" + str(aktuellepruefsumme) + "', '" + str(aktuellLink) + "', '" + str(aktuellCommand) + "'} Wird installiert")
@@ -132,11 +132,13 @@ def updates():
 @app.route('/availUpdates')
 def availupdates():
     return render_template('availUpdates.html')
-
 @app.route('/downloads/<path:filename>')
 def downloads(filename):
     file = filename+".zip"
     return send_from_directory('downloads',file)
+@app.route('/download')
+def download():
+    return render_template('Download.html')
 
 if __name__ == '__main__':
     tserver = Thread(target = start)
