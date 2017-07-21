@@ -23,7 +23,7 @@ def getInformation():
 
     operating = sys.platform
 
-    information = {"Hostname": name, "Alive": "alive", "Datum": date, "CPU": proc, "System": operating, "Ram": str(mem)+"GB"}
+    information = "{'Hostname': '"+str(name)+"', 'Alive': 'alive', 'Datum': '"+str(date)+"', 'CPU': '"+str(bytes(proc).decode(encoding='UTF-8'))+"', 'System': '"+operating+"', 'Ram': '"+str(mem)+"GB'}"
     print(information)
     return information
 

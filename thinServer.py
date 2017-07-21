@@ -91,17 +91,18 @@ def getInfo(c, addr, j):
     link = new_[7]
     command = new_[9]
 
-    fullpackage.append([updatename, updateversion, pruefsumme, link, command])
+    fullpackage.append([ip,updatename, updateversion, pruefsumme, link, command])
     if (str(updateversion) != str(aktuelleVersion)):
         needupdate[j] = True
         c.send("UPDATE! Das System ist nicht auf dem neusten Stand es wird ein Update automatisch installiert!".encode())
         versionstext = ("{'"+str(aktuellupdate)+"', '"+str(aktuelleVersion)+"', '"+str(aktuellepruefsumme)+"', '"+str(aktuellLink)+"', '"+str(aktuellCommand)+"'}")
         c.send(versionstext.encode())
-        fullpackage[j][0] = aktuellupdate
-        fullpackage[j][1] = aktuelleVersion
-        fullpackage[j][2] = aktuellepruefsumme
-        fullpackage[j][3] = aktuellLink
-        fullpackage[j][4] = aktuellCommand
+        fullpackage[j][0] = ip
+        fullpackage[j][1] = aktuellupdate
+        fullpackage[j][2] = aktuelleVersion
+        fullpackage[j][3] = aktuellepruefsumme
+        fullpackage[j][4] = aktuellLink
+        fullpackage[j][5] = aktuellCommand
         print("Package:"+ str(fullpackage))
     if (str(updateversion) == str(aktuelleVersion)):
         needupdate[j] = False
@@ -114,13 +115,14 @@ def getInfo(c, addr, j):
             fullclient[index][3] = "notAlive"
             break
         else:
-            versionstext = ("{'" + str(aktuellupdate) + "', '" + str(aktuelleVersion) + "', '" + str(aktuellepruefsumme) + "', '" + str(aktuellLink) + "', '" + str(aktuellCommand) + "'} Wird installiert")
+            versionstext = "{'" + str(aktuellupdate) + "', '" + str(aktuelleVersion) + "', '" + str(aktuellepruefsumme) + "', '" + str(aktuellLink) + "', '" + str(aktuellCommand) +"'}"
             c.send(versionstext.encode())
-            fullpackage[j][0] = aktuellupdate
-            fullpackage[j][1] = aktuelleVersion
-            fullpackage[j][2] = aktuellepruefsumme
-            fullpackage[j][3] = aktuellLink
-            fullpackage[j][4] = aktuellCommand
+            fullpackage[j][0] = ip
+            fullpackage[j][1] = aktuellupdate
+            fullpackage[j][2] = aktuelleVersion
+            fullpackage[j][3] = aktuellepruefsumme
+            fullpackage[j][4] = aktuellLink
+            fullpackage[j][5] = aktuellCommand
     c.close()
 
 @app.route('/')
@@ -128,7 +130,7 @@ def hello_world():
     return render_template('index.html', fullclient=fullclient)
 @app.route('/updates')
 def updates():
-    return render_template('updates.html', fullpackage=fullpackage, fullclient=fullclient)
+    return render_template('updates.html', fullpackage=fullpackage, )
 @app.route('/availUpdates')
 def availupdates():
     return render_template('availUpdates.html')
