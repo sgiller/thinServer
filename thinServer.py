@@ -23,7 +23,7 @@ app = Flask(__name__)
 def start():
     print("server gestartet")
     host = '0.0.0.0'
-    port = 50001
+    port = 50000
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
     s.listen(3)
@@ -46,17 +46,39 @@ def start():
             thread_.start()
 
 def getInfo(c, addr, j):
+    already = False;
     data = c.recv(1024)
     new = str(data)
     new = str(new).split("'")
     hostname = new[3]
     ip = new[7]
+    index = 0
+    for x in fullclient:
+        for y in x:
+            if y == ip:
+                print (index)
+                fullclient[index][3] = "alive"
+                already = True
+                break
+        if already :
+            break
+        index+=1
+
     alive = str(new[11])
     date = new[15]
     proc = new[19]
-    system = new[23]
+    system = str(new[23])
     ram = new[27]
-    fullclient.append([ip, hostname, system, alive, date, proc, ram])
+    print(index)
+    if (already == True):
+        fullclient[index][0] = ip
+        fullclient[index][1] = hostname
+        fullclient[index][2] = system
+        fullclient[index][4] = date
+        fullclient[index][5] = proc
+        fullclient[index][6] = ram
+    else:
+        fullclient.append([ip, hostname, system, alive, date, proc, ram])
     print("Client:" + str(fullclient))
     data = c.recv(1024)
     data = bytes(data).decode(encoding='UTF-8')
@@ -68,6 +90,7 @@ def getInfo(c, addr, j):
     pruefsumme = new_[5]
     link = new_[7]
     command = new_[9]
+
     fullpackage.append([updatename, updateversion, pruefsumme, link, command])
     if (str(updateversion) != str(aktuelleVersion)):
         needupdate[j] = True
