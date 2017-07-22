@@ -1,4 +1,5 @@
-import socket, threading, time, os, json, psutil, subprocess, platform, time, sys, math
+import socket, time, os, json, psutil, subprocess, platform, time, sys, math, urllib.request, curl, zipfile
+from threading import Thread
 
 #hohlt sich systemspezifische Prozessorinformationen.
 def get_processor_info():
@@ -44,10 +45,22 @@ def writteUpdate(text):
     updateFile.write(text)
     updateFile.close()
 
+def updateThread(client):
+    while True:
+        time.sleep(10)
+        print("hallo!")
+        message = "checkupdate"
+        client.send(bytes(message, "utf-8"))
+        data = client.recv(1024)
+        data = bytes(data).decode(encoding='UTF-8')
+        print(data)
+        writteUpdate(str(data))
+        print("Version wurde auf den neusten Stand gebracht")
+
 #main methode client connected zum Server und schickt Informationen rüber
 def main():
     host = '127.0.0.1'              #ip des hostst
-    port = 50001                    #pport
+    port = 50000                   #pport
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((host, port))    #connected zum host
     message = " "
@@ -63,26 +76,31 @@ def main():
         data = client.recv(1024)
         data = bytes(data).decode(encoding='UTF-8')
         print(data)
-        writteUpdate(str(data))
+        package = data.split("'")
+        link = package[7]
+        print(link)
+
+        url = 'http://'+link+''
+        print(url)
+        urllib.request.urlretrieve(url, 'update.zip')
+        print("Datei wird heruntergeladen")
+        os.remove("update.txt")
+        print("alte Updatedatei wird entfernt")
+        zip = zipfile.ZipFile("update.zip",'r').extractall("")
+        print("neues Update wird extrahiert")
+        os.remove("update.zip")
+        print("Zip wird entfernt")
         print("Aktuelles Update wurde erfolgreich installiert")
 
     message = readUpdate()
     time.sleep(1)
-    client.send(bytes(message, "utf-8"))
+    tcheckUpdate = Thread(target=updateThread, args=(client,))
+    tcheckUpdate.daemon = True
+    tcheckUpdate.start()
     while True:
-        message = input("send um erneut Paketinformationen zu schicken quit um verbindung zu trennen")
         if message == 'quit':
+            client.close()
             break
-        else:
-            message = "needUpdate"
-            time.sleep(1)
-            client.send(bytes(message, "utf-8"))
-            data = client.recv(1024)
-            data = bytes(data).decode(encoding='UTF-8')
-            print(data)
-            writteUpdate(str(data))
-
-    client.close()
 
 
 main()

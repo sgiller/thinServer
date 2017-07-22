@@ -9,7 +9,7 @@ fullpackage = []            #Liste aller Packete der Clients
 aktuelleVersion = 3.0       #Aktuellste Version des Servers
 aktuellupdate = "Update 3"  #Aktuellster Updatename des Servers
 aktuellepruefsumme = "ghi"  #Prüfsumme Pakets
-aktuellLink = "127.0.0.1:5000/downloads/a" #Downloadlink des aktuellsten Packetes
+aktuellLink = "127.0.0.1:5000/downloads/update3" #Downloadlink des aktuellsten Packetes
 aktuellCommand = "tarxyz"                   #Befehl zum entpacken des Packetes
 needupdate = []                             #Liste um zu schauen welcher client ein Update benötigt
 app = Flask(__name__)
@@ -19,7 +19,7 @@ app = Flask(__name__)
 def start():
     print("server gestartet")
     host = '0.0.0.0'                        #host
-    port = 50001                            #port
+    port = 50000                            #port
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
     print("Warte auf Verbindung eines Clienten")
@@ -78,10 +78,15 @@ def getInfo(c, addr, j):
     print(data)
     new_ = str(data)
     new_ = new_.split("'")                  #Informationen werden in das richtige Format gebracht
+    print(new_[1])
     updatename = new_[1]
+    print(new_[3])
     updateversion = new_[3]
+    print(new_[5])
     pruefsumme = new_[5]
+    print(new_[7])
     link = new_[7]
+    print(new_[9])
     command = new_[9]
 
     fullpackage.append([ip,updatename, updateversion, pruefsumme, link, command])       #Packetinformationen werden der Liste hinzugefügt + der zuständgen IP
