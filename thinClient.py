@@ -1,4 +1,4 @@
-import socket, time, os, json, psutil, subprocess, platform, time, sys, math, urllib.request, curl, zipfile
+import socket, os, psutil, subprocess, platform, time, sys, math, urllib.request, zipfile
 from threading import Thread
 
 #hohlt sich systemspezifische Prozessorinformationen.
