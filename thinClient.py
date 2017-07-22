@@ -1,5 +1,6 @@
 import socket, threading, time, os, json, psutil, subprocess, platform, time, sys, math
 
+#hohlt sich systemspezifische Prozessorinformationen.
 def get_processor_info():
     if platform.system() == "Windows":
         return platform.processor()
@@ -9,6 +10,7 @@ def get_processor_info():
         return platform.processor()
     return ""
 
+#in dieser Funktion werden alle nötigen Informationen zusammengefasst
 def getInformation():
     mem = psutil.virtual_memory()
     mem = mem.total/1024**3
@@ -27,6 +29,7 @@ def getInformation():
     print(information)
     return information
 
+#damit wird das aktuell installierte Update ausgelesen
 def readUpdate():
     with open("update.txt", "r") as myfile:
         data = myfile.readline()
@@ -35,24 +38,25 @@ def readUpdate():
         print(str1)
         return str1
 
+#damit wird in die Update.txt geschrieben
 def writteUpdate(text):
     updateFile = open("update.txt",'w')
     updateFile.write(text)
     updateFile.close()
 
-
+#main methode client connected zum Server und schickt Informationen rüber
 def main():
-    host = '127.0.0.1'
-    port = 50001
+    host = '127.0.0.1'              #ip des hostst
+    port = 50001                    #pport
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((host, port))
+    client.connect((host, port))    #connected zum host
     message = " "
     message = str(getInformation())
-    client.send(bytes(message,"utf-8"))
-    message = readUpdate()
+    client.send(bytes(message,"utf-8"))     #pc-Informationen werden zum Server geschickt
+    message = readUpdate()                  #liest das aktuelle Update aus
     time.sleep(1)
-    client.send(bytes(message, "utf-8"))
-    data = client.recv(1024)
+    client.send(bytes(message, "utf-8"))    #sendet die aktuellen Updatedaten zum Server
+    data = client.recv(1024)                #wartet auf antwort vom Server
     data = bytes(data).decode(encoding='UTF-8')
     print(data)
     if str(data).find("UPDATE!") != -1:
