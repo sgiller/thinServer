@@ -25,8 +25,11 @@ def getInformation():
     print(str(date))
 
     operating = sys.platform
+    if(platform.system() == "Darwin"):
+        information = "{'Hostname': '"+str(name)+"', 'Alive': 'alive', 'Datum': '"+str(date)+"', 'CPU': '"+str(bytes(proc).decode(encoding='UTF-8'))+"', 'System': '"+operating+"', 'Ram': '"+str(mem)+"GB'}"
+    else:
+        information = "{'Hostname': '" + str(name) + "', 'Alive': 'alive', 'Datum': '" + str(date) + "', 'CPU': '" +proc+"', 'System': '"+operating+"', 'Ram': '"+str(mem)+"GB'}"
 
-    information = "{'Hostname': '"+str(name)+"', 'Alive': 'alive', 'Datum': '"+str(date)+"', 'CPU': '"+str(bytes(proc).decode(encoding='UTF-8'))+"', 'System': '"+operating+"', 'Ram': '"+str(mem)+"GB'}"
     print(information)
     return information
 
