@@ -1,5 +1,6 @@
 import socket, os, psutil, subprocess, platform, time, sys, math, urllib.request, zipfile
 from threading import Thread
+from pathlib import Path
 
 #hohlt sich systemspezifische Prozessorinformationen.
 def get_processor_info():
@@ -35,12 +36,26 @@ def getInformation():
 
 #damit wird das aktuell installierte Update ausgelesen
 def readUpdate():
-    with open("update.txt", "r") as myfile:
-        data = myfile.readline()
-        myfile.close()
-        str1 = ''.join(data)
-        print(str1)
-        return str1
+    my_file = Path("update.txt")
+    if my_file.is_file():
+        with open("update.txt", "r") as myfile:
+            data = myfile.readline()
+            myfile.close()
+            str1 = ''.join(data)
+            print(str1)
+            myfile.close()
+            return str1
+    else:
+        file = open("update.txt", 'w+')
+        file.write("{'Update 3', '3.0', 'ghi', '192.168.0.31:12345/downloads/update3', 'tarxyz'}")
+        file.close()
+        with open("update.txt", "r") as myfile:
+            data = myfile.readline()
+            myfile.close()
+            str1 = ''.join(data)
+            print(str1)
+            myfile.close()
+            return str1
 
 #damit wird in die Update.txt geschrieben
 def writteUpdate(text):
@@ -88,6 +103,7 @@ def main():
     message = str(getInformation())
     client.send(bytes(message,"utf-8"))     #pc-Informationen werden zum Server geschickt
     message = readUpdate()                  #liest das aktuelle Update aus
+    print(message)
     time.sleep(1)
     client.send(bytes(message, "utf-8"))    #sendet die aktuellen Updatedaten zum Server
     data = client.recv(1024)                #wartet auf antwort vom Server
