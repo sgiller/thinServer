@@ -2,6 +2,7 @@ from flask import *
 import socket, time, os
 from threading import Thread
 
+k = 0
 i = 0
 j = 0                       #i,j hilfvariablen um zu wissen der wievielte client in der Liste geändert werden muss
 fullclient = []             #Liste aller Clients mit Informationen
@@ -30,6 +31,7 @@ def start():
         needupdate.append(False)
         global j                    #Hilfsvariable (counter für Clienten)
         global i                    #Ebenfalls
+        global k
         j = i
         i  = i+1
         print("Connection from : " + str(addr))         #ip des neu verbundenen Clienten
@@ -38,7 +40,7 @@ def start():
         thread_.start()
 
 #Schickt alle 10 Sekunden aktuelles Update an den Server
-def updateThread(c, j, ip, index):
+def updateThread(c, j, ip, index, k):
     while True:
         time.sleep(10)
         print("aktuellstes Update:")
@@ -46,16 +48,15 @@ def updateThread(c, j, ip, index):
         print(versionstext)
         c.send(versionstext.encode())
         data = c.recv(1024)
-        if not data:
-            if not data:
-                print("Client: " + str(ip) + " hat die Verbindung unterbrochen")
-                fullclient[index][3] = "notAlive"
-                c.close()
-                break
         data = bytes(data).decode(encoding='UTF-8')
+        if not data:
+            print("Client: " + str(ip) + " hat die Verbindung unterbrochen")
+            fullclient[index][3] = "notAlive"
+            break
         print("folgendes update ist auf dem Clienten installiert")
         print(data)
         new_ = str(data)
+        checktext = new_
         new_ = new_.split("'")  # Informationen werden in das richtige Format gebracht
         updatename = new_[1]
         updateversion = new_[3]
@@ -63,16 +64,15 @@ def updateThread(c, j, ip, index):
         link = new_[7]
         command = new_[9]
         print("Paketinformationen werden aktualisiert")
-        fullpackage[j][0] = ip
-        fullpackage[j][1] = updatename
-        fullpackage[j][2] = updateversion
-        fullpackage[j][3] = pruefsumme
-        fullpackage[j][4] = link
-        fullpackage[j][5] = command
+        if checktext != fulltext:
+            fullpackage.append([ip, updatename, updateversion,pruefsumme, link, command])
+        else:
+            pass
     c.close()
 
 #hier gehts rein wenn client erfolgreich connected ist--> Daten werden vom Clienten geholt und in den entsprechenden listen gespeichert.
 def getInfo(c, addr, j):
+    k = j
     already = False;                #boolean um zu testen ob Client bereits in den Verbindungen auftaucht
     data = c.recv(1024)             #wartet auf daten des Clienten
     new = str(data)
@@ -116,28 +116,24 @@ def getInfo(c, addr, j):
     pruefsumme = new_[5]
     link = new_[7]
     command = new_[9]
-    if already != True:
-        fullpackage.append([ip,updatename, updateversion, pruefsumme, link, command])       #Packetinformationen werden der Liste hinzugefügt + der zuständgen IP
+
+    fullpackage.append([ip,updatename, updateversion, pruefsumme, link, command])       #Packetinformationen werden der Liste hinzugefügt + der zuständgen IP
+    k = k+1
     print("VERGLEICH:"+str(checktext)+"     mit: "+str(fulltext))
     if (str(checktext) != str(fulltext)):                                    #anhand der Updateversion wird überprüft ob der CLient das aktuellste Update besitzt
         needupdate[j] = True
         c.send("UPDATE! Das System ist nicht auf dem neusten Stand es wird ein Update automatisch installiert!".encode())
         versionstext = ("{'"+str(aktuellupdate)+"', '"+str(aktuelleVersion)+"', '"+str(aktuellepruefsumme)+"', '"+str(aktuellLink)+"', '"+str(aktuellCommand)+"'}")     #Daten mit dem Aktuellen Update werden an den Clienten geschickt
         c.send(versionstext.encode())
-        fullpackage[j][0] = ip
-        fullpackage[j][1] = aktuellupdate
-        fullpackage[j][2] = aktuelleVersion
-        fullpackage[j][3] = aktuellepruefsumme              #Listen werden aktualisert j ist hier die ClientID und sucht sich den passenden Listeneintrag raus
-        fullpackage[j][4] = aktuellLink
-        fullpackage[j][5] = aktuellCommand
-        fullpackage.append([ip, aktuellupdate, aktuelleVersion, aktuellLink, aktuellCommand])
+        fullpackage.append([ip, aktuellupdate, aktuelleVersion,aktuellepruefsumme, aktuellLink, aktuellCommand])
+        k = k+1
         print("Package:"+ str(fullpackage))
     if (str(checktext) == str(fulltext)):
         needupdate[j] = False
         c.send("Das System ist bereits auf dem neusten Stand kein Update notwendig".encode())
 
     #thread wird gestartet der alle 10 sekund das Aktuellste update an den Clienten schickt.
-    thread_ = Thread(target=updateThread, args=(c, j, ip, index))
+    thread_ = Thread(target=updateThread, args=(c, j, ip, index, k))
     thread_.daemon = True
     thread_.start()
 def checkforquit():
