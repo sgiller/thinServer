@@ -69,21 +69,18 @@ def changeFile(data):
 def updateThread(client):
     while True:
         data = client.recv(1024)
-        if not data:
-            client.close()
-            break
         data = bytes(data).decode(encoding='UTF-8')
         if data != readUpdate():
+            print("neues update wird heruntergeladen")
             changeFile(data)
-        print("ich gehe hier rein!")
         message = readUpdate()  # liest das aktuelle Update aus
         time.sleep(1)
+        print("jetzt installiertes Update wird an den Server gesendet.")
         client.send(bytes(message, "utf-8"))  # sendet die aktuellen Updatedaten zum Server
-
 
 #main methode client connected zum Server und schickt Informationen rüber
 def main():
-    host = '127.0.0.1'              #ip des hostst
+    host = '192.168.0.31'              #ip des hostst
     port = 50000                   #pport
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((host, port))    #connected zum host

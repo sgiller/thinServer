@@ -37,11 +37,11 @@ def start():
         thread_.daemon = True                                       #um sich die Pc informationen und Paketinformationen zu hohlen
         thread_.start()
 
+#Schickt alle 10 Sekunden aktuelles Update an den Server
 def updateThread(c, j, ip, index):
     while True:
-        print("testtest")
-        time.sleep(7)
-        print("gestartet")
+        time.sleep(10)
+        print("aktuellstes Update:")
         versionstext = "{'" + str(aktuellupdate) + "', '" + str(aktuelleVersion) + "', '" + str(aktuellepruefsumme) + "', '" + str(aktuellLink) + "', '" + str(aktuellCommand) + "'}"
         print(versionstext)
         c.send(versionstext.encode())
@@ -53,6 +53,7 @@ def updateThread(c, j, ip, index):
                 c.close()
                 break
         data = bytes(data).decode(encoding='UTF-8')
+        print("folgendes update ist auf dem Clienten installiert")
         print(data)
         new_ = str(data)
         new_ = new_.split("'")  # Informationen werden in das richtige Format gebracht
@@ -61,6 +62,7 @@ def updateThread(c, j, ip, index):
         pruefsumme = new_[5]
         link = new_[7]
         command = new_[9]
+        print("Paketinformationen werden aktualisiert")
         fullpackage[j][0] = ip
         fullpackage[j][1] = updatename
         fullpackage[j][2] = updateversion
