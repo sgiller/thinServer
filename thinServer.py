@@ -1,7 +1,7 @@
+# -*- coding: utf-8 -*-
 from flask import *
 import socket, time, os
 from threading import Thread
-
 k = 0
 i = 0
 j = 0                       #i,j hilfvariablen um zu wissen der wievielte client in der Liste geändert werden muss
@@ -16,8 +16,8 @@ aktuellCommand = "tarxyz"                   #Befehl zum entpacken des Packetes
 needupdate = []                             #Liste um zu schauen welcher client ein Update benötigt
 app = Flask(__name__)
 
-
 def getTime():
+    '''Hohlt sich die Aktuelle Uhrzeit'''
     date = time.strftime("%d.%m.%Y %H:%M:%S")
     return str(date)
 
@@ -27,6 +27,7 @@ def start():
     host = '0.0.0.0'                        #host
     port = 50000                            #port
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((host, port))
     print("Warte auf Verbindung eines Clienten")
     s.listen(3)
@@ -55,7 +56,7 @@ def updateThread(c, j, ip, index, k):
         data = bytes(data).decode(encoding='UTF-8')
         if not data:
             print("Client: " + str(ip) + " hat die Verbindung unterbrochen")
-            fullclient[index][3] = "notAlive"
+            fullclient[index][3] = "notAlive"                                   #bricht die Verbindung zu einem Clienten ab wird der entsprechende wert of notAlive gesetzt
             break
         print("folgendes update ist auf dem Clienten installiert")
         print(data)
@@ -63,7 +64,7 @@ def updateThread(c, j, ip, index, k):
         checktext = new_
         new_ = new_.split("'")  # Informationen werden in das richtige Format gebracht
         updatename = new_[1]
-        updateversion = new_[3]
+        updateversion = new_[3]    #und in Variablen zwischengespeichert.
         pruefsumme = new_[5]
         link = new_[7]
         command = new_[9]
@@ -142,7 +143,7 @@ def getInfo(c, addr, j):
     thread_.start()
 def checkforquit():
     while True:
-        end = input("print quit to close Server")
+        end = input("")
         if end == 'quit':
             break
     os._exit(-1)

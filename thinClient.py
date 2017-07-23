@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
 import socket, os, psutil, subprocess, platform, time, sys, math, urllib.request, zipfile, cpuinfo
 from threading import Thread
 from pathlib import Path
 
-host = '192.168.0.31'  # ip des hostst
-flaskport = 12345
-port = 50000  #port
+host = '192.168.0.31'   #Ip des Host
+flaskport = 12345       #flaskPort
+port = 50000            #Port des Host
 
-#hohlt sich systemspezifische Prozessorinformationen.
+#Prozessorinformationen werden abhängig vom Betriebssystem gehohlt.
 def get_processor_info():
     if platform.system() == "Windows":
          return cpuinfo.get_cpu_info().get('brand')
@@ -16,17 +17,17 @@ def get_processor_info():
          return cpuinfo.get_cpu_info().get('brand')
     return ""
 
-#in dieser Funktion werden alle nötigen Informationen zusammengefasst
+#in dieser Funktion werden alle nötigen Informationen  in einem String zusammengefasst
 def getInformation():
     mem = psutil.virtual_memory()
     mem = mem.total/1024**3
     mem = math.ceil(mem*100)/100
 
-    proc = get_processor_info()
+    proc = get_processor_info()             #ProzessorInfo
 
-    name = platform.uname().node
+    name = platform.uname().node            #Hostname
 
-    date = time.strftime("%d.%m.%Y %H:%M:%S")
+    date = time.strftime("%d.%m.%Y %H:%M:%S")   #Datum
     print(str(date))
 
     operating = sys.platform
@@ -40,16 +41,16 @@ def getInformation():
 
 #damit wird das aktuell installierte Update ausgelesen
 def readUpdate():
-    my_file = Path("update.txt")
+    my_file = Path("update.txt")            #Updatefile
     if my_file.is_file():
-        with open("update.txt", "r") as myfile:
+        with open("update.txt", "r") as myfile:         #liest datei falls sie existiert.
             data = myfile.readline()
             myfile.close()
             str1 = ''.join(data)
             print(str1)
             myfile.close()
             return str1
-    else:
+    else:                                               #ansonsten wird die datei erst erstelllt dann beschrieben und gelesen.
         file = open("update.txt", 'w+')
         file.write("{'Update 3', '3.0', 'ghi', '"+host+":"+str(flaskport)+"/downloads/update3', 'tarxyz'}")
         file.close()
@@ -67,6 +68,7 @@ def writteUpdate(text):
     updateFile.write(text)
     updateFile.close()
 
+#datei wird durch neue Updatefile ersetzt
 def changeFile(data):
     package = data.split("'")
     print(data)
@@ -85,6 +87,7 @@ def changeFile(data):
     print("Zip wird entfernt")
     print("Aktuelles Update wurde erfolgreich installiert")
 
+#Thread der mit dem Server kommuniziert und überprüft ob aktuelles Update installiert ist.
 def updateThread(client):
     while True:
         data = client.recv(1024)
@@ -118,15 +121,15 @@ def main():
         data = bytes(data).decode(encoding='UTF-8')
         print(data)
         changeFile(data)
-
-
-
     message = readUpdate()
     time.sleep(1)
     tcheckUpdate = Thread(target=updateThread, args=(client,))      #Thread kommuniziert mit server bekommt alle 10 sekunden aktuellstes Serverpaket
     tcheckUpdate.daemon = True
     tcheckUpdate.start()
     while True:
-        pass
+        test = input()
+        if test == 'quit':
+            client.close()
+            sys.exit(1)
 
 main()
