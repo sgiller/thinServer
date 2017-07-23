@@ -1,15 +1,19 @@
-import socket, os, psutil, subprocess, platform, time, sys, math, urllib.request, zipfile
+import socket, os, psutil, subprocess, platform, time, sys, math, urllib.request, zipfile, cpuinfo
 from threading import Thread
 from pathlib import Path
+
+host = '192.168.0.31'  # ip des hostst
+flaskport = 12345
+port = 50000  #port
 
 #hohlt sich systemspezifische Prozessorinformationen.
 def get_processor_info():
     if platform.system() == "Windows":
-        return platform.processor()
+         return cpuinfo.get_cpu_info().get('brand')
     elif platform.system() == "Darwin":
         return subprocess.check_output(['/usr/sbin/sysctl', "-n", "machdep.cpu.brand_string"]).strip()
     elif platform.system() == "Linux":
-        return platform.processor()
+         return cpuinfo.get_cpu_info().get('brand')
     return ""
 
 #in dieser Funktion werden alle nötigen Informationen zusammengefasst
@@ -47,7 +51,7 @@ def readUpdate():
             return str1
     else:
         file = open("update.txt", 'w+')
-        file.write("{'Update 3', '3.0', 'ghi', '192.168.0.31:12345/downloads/update3', 'tarxyz'}")
+        file.write("{'Update 3', '3.0', 'ghi', '"+host+":"+str(flaskport)+"/downloads/update3', 'tarxyz'}")
         file.close()
         with open("update.txt", "r") as myfile:
             data = myfile.readline()
@@ -69,7 +73,7 @@ def changeFile(data):
     link = package[7]
     print(link)
 
-    url = 'http://' + link + ''
+    url = 'http://' +host+":"+str(flaskport)+ link + ''
     print(url)
     urllib.request.urlretrieve(url, 'update.zip')
     print("Datei wird heruntergeladen")
@@ -95,8 +99,6 @@ def updateThread(client):
 
 #main methode client connected zum Server und schickt Informationen rüber
 def main():
-    host = '192.168.0.31'              #ip des hostst
-    port = 50000                   #pport
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((host, port))    #connected zum host
     message = " "

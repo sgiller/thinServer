@@ -9,7 +9,8 @@ fullpackage = []            #Liste aller Packete der Clients
 aktuelleVersion = 3.0       #Aktuellste Version des Servers
 aktuellupdate = "Update 3"  #Aktuellster Updatename des Servers
 aktuellepruefsumme = "ghi"  #Prüfsumme Pakets
-aktuellLink = "192.168.0.31:12345/downloads/update3" #Downloadlink des aktuellsten Packetes
+aktuellLink = "/downloads/update3" #Downloadlink des aktuellsten Packetes
+fulltext ="{'Update 3', '3.0', 'ghi', '/downloads/update3', 'tarxyz'}"
 aktuellCommand = "tarxyz"                   #Befehl zum entpacken des Packetes
 needupdate = []                             #Liste um zu schauen welcher client ein Update benötigt
 app = Flask(__name__)
@@ -111,6 +112,7 @@ def getInfo(c, addr, j):
     data = bytes(data).decode(encoding='UTF-8')
     print(data)
     new_ = str(data)
+    checktext = new_
     new_ = new_.split("'")                  #Informationen werden in das richtige Format gebracht
     print(new_[1])
     updatename = new_[1]
@@ -122,9 +124,10 @@ def getInfo(c, addr, j):
     link = new_[7]
     print(new_[9])
     command = new_[9]
-
-    fullpackage.append([ip,updatename, updateversion, pruefsumme, link, command])       #Packetinformationen werden der Liste hinzugefügt + der zuständgen IP
-    if (str(updateversion) != str(aktuelleVersion)):                                    #anhand der Updateversion wird überprüft ob der CLient das aktuellste Update besitzt
+    if already != True:
+        fullpackage.append([ip,updatename, updateversion, pruefsumme, link, command])       #Packetinformationen werden der Liste hinzugefügt + der zuständgen IP
+    print("VERGLEICH:"+str(checktext)+"     mit: "+str(fulltext))
+    if (str(checktext) != str(fulltext)):                                    #anhand der Updateversion wird überprüft ob der CLient das aktuellste Update besitzt
         needupdate[j] = True
         c.send("UPDATE! Das System ist nicht auf dem neusten Stand es wird ein Update automatisch installiert!".encode())
         versionstext = ("{'"+str(aktuellupdate)+"', '"+str(aktuelleVersion)+"', '"+str(aktuellepruefsumme)+"', '"+str(aktuellLink)+"', '"+str(aktuellCommand)+"'}")     #Daten mit dem Aktuellen Update werden an den Clienten geschickt
@@ -135,8 +138,9 @@ def getInfo(c, addr, j):
         fullpackage[j][3] = aktuellepruefsumme              #Listen werden aktualisert j ist hier die ClientID und sucht sich den passenden Listeneintrag raus
         fullpackage[j][4] = aktuellLink
         fullpackage[j][5] = aktuellCommand
+        fullpackage.append([ip, aktuellupdate, aktuelleVersion, aktuellLink, aktuellCommand])
         print("Package:"+ str(fullpackage))
-    if (str(updateversion) == str(aktuelleVersion)):
+    if (str(checktext) == str(fulltext)):
         needupdate[j] = False
         c.send("Das System ist bereits auf dem neusten Stand kein Update notwendig".encode())
 
@@ -148,7 +152,6 @@ def checkforquit():
     while True:
         end = input("print quit to close Server")
         if end == 'quit':
-            print("yeah")
             break
     os._exit(-1)
 
