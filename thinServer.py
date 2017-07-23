@@ -17,6 +17,10 @@ needupdate = []                             #Liste um zu schauen welcher client 
 app = Flask(__name__)
 
 
+def getTime():
+    date = time.strftime("%d.%m.%Y %H:%M:%S")
+    return str(date)
+
 #Server wird gestartet
 def start():
     print("server gestartet")
@@ -65,7 +69,7 @@ def updateThread(c, j, ip, index, k):
         command = new_[9]
         print("Paketinformationen werden aktualisiert")
         if checktext != fulltext:
-            fullpackage.append([ip, updatename, updateversion,pruefsumme, link, command])
+            fullpackage.append([ip, getTime(), updatename, updateversion,pruefsumme, link, command])
         else:
             pass
     c.close()
@@ -117,7 +121,7 @@ def getInfo(c, addr, j):
     link = new_[7]
     command = new_[9]
 
-    fullpackage.append([ip,updatename, updateversion, pruefsumme, link, command])       #Packetinformationen werden der Liste hinzugefügt + der zuständgen IP
+    fullpackage.append([ip, getTime(),updatename, updateversion, pruefsumme, link, command])       #Packetinformationen werden der Liste hinzugefügt + der zuständgen IP
     k = k+1
     print("VERGLEICH:"+str(checktext)+"     mit: "+str(fulltext))
     if (str(checktext) != str(fulltext)):                                    #anhand der Updateversion wird überprüft ob der CLient das aktuellste Update besitzt
@@ -125,7 +129,7 @@ def getInfo(c, addr, j):
         c.send("UPDATE! Das System ist nicht auf dem neusten Stand es wird ein Update automatisch installiert!".encode())
         versionstext = ("{'"+str(aktuellupdate)+"', '"+str(aktuelleVersion)+"', '"+str(aktuellepruefsumme)+"', '"+str(aktuellLink)+"', '"+str(aktuellCommand)+"'}")     #Daten mit dem Aktuellen Update werden an den Clienten geschickt
         c.send(versionstext.encode())
-        fullpackage.append([ip, aktuellupdate, aktuelleVersion,aktuellepruefsumme, aktuellLink, aktuellCommand])
+        fullpackage.append([ip, getTime(), aktuellupdate, aktuelleVersion,aktuellepruefsumme, aktuellLink, aktuellCommand])
         k = k+1
         print("Package:"+ str(fullpackage))
     if (str(checktext) == str(fulltext)):
