@@ -48,17 +48,38 @@ def writteUpdate(text):
     updateFile.write(text)
     updateFile.close()
 
+def changeFile(data):
+    package = data.split("'")
+    print(data)
+    link = package[7]
+    print(link)
+
+    url = 'http://' + link + ''
+    print(url)
+    urllib.request.urlretrieve(url, 'update.zip')
+    print("Datei wird heruntergeladen")
+    os.remove("update.txt")
+    print("alte Updatedatei wird entfernt")
+    zip = zipfile.ZipFile("update.zip", 'r').extractall("")
+    print("neues Update wird extrahiert")
+    os.remove("update.zip")
+    print("Zip wird entfernt")
+    print("Aktuelles Update wurde erfolgreich installiert")
+
 def updateThread(client):
     while True:
-        time.sleep(10)
-        print("hallo!")
-        message = "checkupdate"
-        client.send(bytes(message, "utf-8"))
         data = client.recv(1024)
+        if not data:
+            client.close()
+            break
         data = bytes(data).decode(encoding='UTF-8')
-        print(data)
-        writteUpdate(str(data))
-        print("Version wurde auf den neusten Stand gebracht")
+        if data != readUpdate():
+            changeFile(data)
+        print("ich gehe hier rein!")
+        message = readUpdate()  # liest das aktuelle Update aus
+        time.sleep(1)
+        client.send(bytes(message, "utf-8"))  # sendet die aktuellen Updatedaten zum Server
+
 
 #main methode client connected zum Server und schickt Informationen rüber
 def main():
@@ -79,21 +100,9 @@ def main():
         data = client.recv(1024)
         data = bytes(data).decode(encoding='UTF-8')
         print(data)
-        package = data.split("'")
-        link = package[7]
-        print(link)
+        changeFile(data)
 
-        url = 'http://'+link+''
-        print(url)
-        urllib.request.urlretrieve(url, 'update.zip')
-        print("Datei wird heruntergeladen")
-        os.remove("update.txt")
-        print("alte Updatedatei wird entfernt")
-        zip = zipfile.ZipFile("update.zip",'r').extractall("")
-        print("neues Update wird extrahiert")
-        os.remove("update.zip")
-        print("Zip wird entfernt")
-        print("Aktuelles Update wurde erfolgreich installiert")
+
 
     message = readUpdate()
     time.sleep(1)
@@ -101,9 +110,6 @@ def main():
     tcheckUpdate.daemon = True
     tcheckUpdate.start()
     while True:
-        if message == 'quit':
-            client.close()
-            break
-
+        pass
 
 main()

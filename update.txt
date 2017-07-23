@@ -1,1 +1,1 @@
-{'Update 3', '3.0', 'ghi', '127.0.0.1:5000/downloads/update3', 'tarxyz'}
+{'Update 3', '3.0', 'ghi', '192.168.0.31:12345/downloads/update3', 'tarxyz'}

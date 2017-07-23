@@ -1,5 +1,5 @@
 from flask import *
-import socket
+import socket, time
 from threading import Thread
 
 i = 0
@@ -9,7 +9,7 @@ fullpackage = []            #Liste aller Packete der Clients
 aktuelleVersion = 3.0       #Aktuellste Version des Servers
 aktuellupdate = "Update 3"  #Aktuellster Updatename des Servers
 aktuellepruefsumme = "ghi"  #Prüfsumme Pakets
-aktuellLink = "127.0.0.1:5000/downloads/update3" #Downloadlink des aktuellsten Packetes
+aktuellLink = "192.168.0.31:12345/downloads/update3" #Downloadlink des aktuellsten Packetes
 aktuellCommand = "tarxyz"                   #Befehl zum entpacken des Packetes
 needupdate = []                             #Liste um zu schauen welcher client ein Update benötigt
 app = Flask(__name__)
@@ -36,6 +36,38 @@ def start():
         thread_ = Thread(target = getInfo, args=(c, addr, j))       #Thread mit adresse counter und connection wird gestartet
         thread_.daemon = True                                       #um sich die Pc informationen und Paketinformationen zu hohlen
         thread_.start()
+
+def updateThread(c, j, ip, index):
+    while True:
+        print("testtest")
+        time.sleep(7)
+        print("gestartet")
+        versionstext = "{'" + str(aktuellupdate) + "', '" + str(aktuelleVersion) + "', '" + str(aktuellepruefsumme) + "', '" + str(aktuellLink) + "', '" + str(aktuellCommand) + "'}"
+        print(versionstext)
+        c.send(versionstext.encode())
+        data = c.recv(1024)
+        if not data:
+            if not data:
+                print("Client: " + str(ip) + " hat die Verbindung unterbrochen")
+                fullclient[index][3] = "notAlive"
+                c.close()
+                break
+        data = bytes(data).decode(encoding='UTF-8')
+        print(data)
+        new_ = str(data)
+        new_ = new_.split("'")  # Informationen werden in das richtige Format gebracht
+        updatename = new_[1]
+        updateversion = new_[3]
+        pruefsumme = new_[5]
+        link = new_[7]
+        command = new_[9]
+        fullpackage[j][0] = ip
+        fullpackage[j][1] = updatename
+        fullpackage[j][2] = updateversion
+        fullpackage[j][3] = pruefsumme
+        fullpackage[j][4] = link
+        fullpackage[j][5] = command
+    c.close()
 
 #hier gehts rein wenn client erfolgreich connected ist--> Daten werden vom Clienten geholt und in den entsprechenden listen gespeichert.
 def getInfo(c, addr, j):
@@ -105,24 +137,11 @@ def getInfo(c, addr, j):
     if (str(updateversion) == str(aktuelleVersion)):
         needupdate[j] = False
         c.send("Das System ist bereits auf dem neusten Stand kein Update notwendig".encode())
-    #nachdem alle Daten erhalten wurden geht der Server in eine While schleife, in der er immer auf anfrage das aktuellste Packet installiert.
-    #oder die verbindung abbricht
-    while True:
-        data = c.recv(1024)
-        if not data:
-            print("Client: " + str(addr[1]) + " hat die Verbindung unterbrochen")
-            fullclient[index][3] = "notAlive"
-            break
-        else:
-            versionstext = "{'" + str(aktuellupdate) + "', '" + str(aktuelleVersion) + "', '" + str(aktuellepruefsumme) + "', '" + str(aktuellLink) + "', '" + str(aktuellCommand) +"'}"
-            c.send(versionstext.encode())
-            fullpackage[j][0] = ip
-            fullpackage[j][1] = aktuellupdate
-            fullpackage[j][2] = aktuelleVersion
-            fullpackage[j][3] = aktuellepruefsumme
-            fullpackage[j][4] = aktuellLink
-            fullpackage[j][5] = aktuellCommand
-    c.close()
+
+    #thread wird gestartet der alle 10 sekund das Aktuellste update an den Clienten schickt.
+    thread_ = Thread(target=updateThread, args=(c, j, ip, index))
+    thread_.daemon = True
+    thread_.start()
 
 #Hauptseine(alle Clienten die sich verbunden haben werden angezeigt)
 @app.route('/')
@@ -151,8 +170,4 @@ if __name__ == '__main__':
     tserver = Thread(target = start)
     tserver.daemon = True
     tserver.start()
-    tflask = Thread(target = app.run)
-    tflask.daemon = True
-    tflask.start()
-    while True:
-        pass
+    app.run(host="0.0.0.0", port="12345")
