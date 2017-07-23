@@ -1,5 +1,5 @@
 from flask import *
-import socket, time
+import socket, time, os
 from threading import Thread
 
 i = 0
@@ -144,6 +144,13 @@ def getInfo(c, addr, j):
     thread_ = Thread(target=updateThread, args=(c, j, ip, index))
     thread_.daemon = True
     thread_.start()
+def checkforquit():
+    while True:
+        end = input("print quit to close Server")
+        if end == 'quit':
+            print("yeah")
+            break
+    os._exit(-1)
 
 #Hauptseine(alle Clienten die sich verbunden haben werden angezeigt)
 @app.route('/')
@@ -172,4 +179,7 @@ if __name__ == '__main__':
     tserver = Thread(target = start)
     tserver.daemon = True
     tserver.start()
+    tquit = Thread(target = checkforquit)
+    tquit.daemon = True
+    tquit.start()
     app.run(host="0.0.0.0", port="12345")
