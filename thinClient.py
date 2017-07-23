@@ -94,7 +94,7 @@ def updateThread(client):
             changeFile(data)
         message = readUpdate()  # liest das aktuelle Update aus
         time.sleep(1)
-        print("jetzt installiertes Update wird an den Server gesendet.")
+        print("sende update an Server-->")
         client.send(bytes(message, "utf-8"))  # sendet die aktuellen Updatedaten zum Server
 
 #main methode client connected zum Server und schickt Informationen rüber
@@ -103,15 +103,17 @@ def main():
     client.connect((host, port))    #connected zum host
     message = " "
     message = str(getInformation())
+    print ("folgende Informationen werden an den Server geschickt!")
     client.send(bytes(message,"utf-8"))     #pc-Informationen werden zum Server geschickt
     message = readUpdate()                  #liest das aktuelle Update aus
+    print("folgende Packetinformationen werden an den Server geschickt!")
     print(message)
     time.sleep(1)
     client.send(bytes(message, "utf-8"))    #sendet die aktuellen Updatedaten zum Server
     data = client.recv(1024)                #wartet auf antwort vom Server
     data = bytes(data).decode(encoding='UTF-8')
     print(data)
-    if str(data).find("UPDATE!") != -1:
+    if str(data).find("UPDATE!") != -1:     #bekommt der CLient UPDATE! weiß er das er ein neues Update benötigt
         data = client.recv(1024)
         data = bytes(data).decode(encoding='UTF-8')
         print(data)
@@ -121,7 +123,7 @@ def main():
 
     message = readUpdate()
     time.sleep(1)
-    tcheckUpdate = Thread(target=updateThread, args=(client,))
+    tcheckUpdate = Thread(target=updateThread, args=(client,))      #Thread kommuniziert mit server bekommt alle 10 sekunden aktuellstes Serverpaket
     tcheckUpdate.daemon = True
     tcheckUpdate.start()
     while True:

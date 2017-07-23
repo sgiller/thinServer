@@ -27,7 +27,6 @@ def start():
     s.listen(3)
     while True:
         c, addr = s.accept()
-        print(addr)
         needupdate.append(False)
         global j                    #Hilfsvariable (counter für Clienten)
         global i                    #Ebenfalls
@@ -84,7 +83,6 @@ def getInfo(c, addr, j):
     for x in fullclient:            #in dieser for loop wird überprüft ob die ip sich bereits verbunden hatte, dann werden die entsprechenden Listeneinträge
         for y in x:                 #geändert und nicht appendet.
             if y == ip:
-                print (index)
                 fullclient[index][3] = "alive"
                 already = True      #boolean der sagt ob eintrag von ip gefunden wurde.
                 break
@@ -97,7 +95,6 @@ def getInfo(c, addr, j):
     proc = new[15]
     system = str(new[19])
     ram = new[23]
-    print(index)
     if (already == True):                   #wenn verbindung bereits vorhanden werden die listen mit den Clientdaten verändert
         fullclient[index][0] = ip
         fullclient[index][1] = hostname
@@ -114,15 +111,10 @@ def getInfo(c, addr, j):
     new_ = str(data)
     checktext = new_
     new_ = new_.split("'")                  #Informationen werden in das richtige Format gebracht
-    print(new_[1])
     updatename = new_[1]
-    print(new_[3])
     updateversion = new_[3]
-    print(new_[5])
     pruefsumme = new_[5]
-    print(new_[7])
     link = new_[7]
-    print(new_[9])
     command = new_[9]
     if already != True:
         fullpackage.append([ip,updatename, updateversion, pruefsumme, link, command])       #Packetinformationen werden der Liste hinzugefügt + der zuständgen IP
