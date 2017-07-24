@@ -6,6 +6,8 @@ from pathlib import Path
 host = '192.168.0.31'   #Ip des Host
 flaskport = 12345       #flaskPort
 port = 50000            #Port des Host
+connected = True        #boolean um zu überprüfen ob Client noch verbunden ist
+
 
 #Prozessorinformationen werden abhängig vom Betriebssystem gehohlt.
 def get_processor_info():
@@ -33,7 +35,7 @@ def getInformation():
     operating = sys.platform
     if(platform.system() == "Darwin"):
         information = "{'Hostname': '"+str(name)+"', 'Alive': 'alive', 'Datum': '"+str(date)+"', 'CPU': '"+str(bytes(proc).decode(encoding='UTF-8'))+"', 'System': '"+operating+"', 'Ram': '"+str(mem)+"GB'}"
-    else:
+    else:#hier  wird der String in das passende Format gebracht.
         information = "{'Hostname': '" + str(name) + "', 'Alive': 'alive', 'Datum': '" + str(date) + "', 'CPU': '" +proc+"', 'System': '"+operating+"', 'Ram': '"+str(mem)+"GB'}"
 
     print(information)
@@ -43,7 +45,7 @@ def getInformation():
 def readUpdate():
     my_file = Path("update.txt")            #Updatefile
     if my_file.is_file():
-        with open("update.txt", "r") as myfile:         #liest datei falls sie existiert.
+        with open("update.txt", "r") as myfile:         #liest datei (update.txt) falls diese existiert.
             data = myfile.readline()
             myfile.close()
             str1 = ''.join(data)
@@ -77,7 +79,7 @@ def changeFile(data):
 
     url = 'http://' +host+":"+str(flaskport)+ link + ''
     print(url)
-    urllib.request.urlretrieve(url, 'update.zip')
+    urllib.request.urlretrieve(url, 'update.zip')           #zip file wird heruntergeladen
     print("Datei wird heruntergeladen")
     os.remove("update.txt")
     print("alte Updatedatei wird entfernt")
@@ -92,6 +94,10 @@ def updateThread(client):
     while True:
         data = client.recv(1024)
         data = bytes(data).decode(encoding='UTF-8')
+        if not data:
+            print("Verbindung zum Server getrennt")
+            connected = False
+            sys.exit()
         if data != readUpdate():
             print("neues update wird heruntergeladen")
             changeFile(data)
@@ -103,7 +109,11 @@ def updateThread(client):
 #main methode client connected zum Server und schickt Informationen rüber
 def main():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((host, port))    #connected zum host
+    try:
+        client.connect((host, port))    #connected zum host
+    except:
+        print("Verbindung zum Server konnte nicht aufgebaut werden. Hostip überprüfen.")
+        sys.exit()
     message = " "
     message = str(getInformation())
     print ("folgende Informationen werden an den Server geschickt!")
@@ -126,10 +136,9 @@ def main():
     tcheckUpdate = Thread(target=updateThread, args=(client,))      #Thread kommuniziert mit server bekommt alle 10 sekunden aktuellstes Serverpaket
     tcheckUpdate.daemon = True
     tcheckUpdate.start()
-    while True:
-        test = input()
-        if test == 'quit':
-            client.close()
-            sys.exit(1)
+    while connected == True:
+        pass
+    else:
+        sys.exit()
 
 main()

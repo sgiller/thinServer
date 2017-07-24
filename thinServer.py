@@ -2,7 +2,6 @@
 from flask import *
 import socket, time, os
 from threading import Thread
-k = 0
 i = 0
 j = 0                       #i,j hilfvariablen um zu wissen der wievielte client in der Liste geändert werden muss
 fullclient = []             #Liste aller Clients mit Informationen
@@ -32,20 +31,19 @@ def start():
     print("Warte auf Verbindung eines Clienten")
     s.listen(3)
     while True:
-        c, addr = s.accept()
+        c, addr = s.accept()        #verbindungsinformationen in c und ip+port in addr
         needupdate.append(False)
         global j                    #Hilfsvariable (counter für Clienten)
         global i                    #Ebenfalls
-        global k
-        j = i
-        i  = i+1
+        j = i                       #j wird gleich i gesetzt um die aktuelle clientid in j zu speichern
+        i  = i+1                    #i wird um 1 erhöht damit sich die nächste id um 1 erhöht.
         print("Connection from : " + str(addr))         #ip des neu verbundenen Clienten
         thread_ = Thread(target = getInfo, args=(c, addr, j))       #Thread mit adresse counter und connection wird gestartet
         thread_.daemon = True                                       #um sich die Pc informationen und Paketinformationen zu hohlen
         thread_.start()
 
-#Schickt alle 10 Sekunden aktuelles Update an den Server
-def updateThread(c, j, ip, index, k):
+#Schickt alle 10 Sekunden aktuelles Update an den Clienten
+def updateThread(c, j, ip, index):
     while True:
         time.sleep(10)
         print("aktuellstes Update:")
@@ -73,7 +71,7 @@ def updateThread(c, j, ip, index, k):
             fullpackage.append([ip, getTime(), updatename, updateversion,pruefsumme, link, command])
         else:
             pass
-    c.close()
+    c.close()               #entsprechender Sockel wird geschlossen
 
 #hier gehts rein wenn client erfolgreich connected ist--> Daten werden vom Clienten geholt und in den entsprechenden listen gespeichert.
 def getInfo(c, addr, j):
@@ -138,7 +136,7 @@ def getInfo(c, addr, j):
         c.send("Das System ist bereits auf dem neusten Stand kein Update notwendig".encode())
 
     #thread wird gestartet der alle 10 sekund das Aktuellste update an den Clienten schickt.
-    thread_ = Thread(target=updateThread, args=(c, j, ip, index, k))
+    thread_ = Thread(target=updateThread, args=(c, j, ip, index))
     thread_.daemon = True
     thread_.start()
 def checkforquit():
@@ -174,8 +172,8 @@ def download():
 if __name__ == '__main__':
     tserver = Thread(target = start)
     tserver.daemon = True
-    tserver.start()
+    tserver.start()                                         #threads für server und überprüfen ob quit eingegeben wird zum verlassen werden gestartet
     tquit = Thread(target = checkforquit)
-    tquit.daemon = True
+    tquit.daemon = True                                     #durch daemon beendet sich der thread wenn das programm beendet wird
     tquit.start()
     app.run(host="0.0.0.0", port="12345")
