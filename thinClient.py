@@ -140,5 +140,7 @@ def main():
         pass
     else:
         sys.exit()
-
-main()
+try:
+    main()
+except KeyboardInterrupt:
+    print("Verbindung wurde getrennt")
